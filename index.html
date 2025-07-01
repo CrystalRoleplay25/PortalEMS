@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; connect-src 'self' https://api.mailjet.com; img-src 'self' data: https://images.unsplash.com https://randomuser.me; font-src 'self' https://cdnjs.cloudflare.com;">
     <title>Recrutamento EMS | FiveM</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -584,6 +585,17 @@
             margin-top: 20px;
         }
         
+        /* Error Message */
+        .error-message {
+            display: none;
+            background: var(--accent);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
         /* Responsive */
         @media (max-width: 900px) {
             .process-steps {
@@ -891,6 +903,7 @@
                     
                     <div class="spinner" id="form-spinner"></div>
                     <div class="success-message" id="success-message">Candidatura enviada com sucesso!</div>
+                    <div class="error-message" id="error-message"></div>
                     
                     <button type="submit" class="submit-btn" id="submit-button">
                         <i class="fas fa-paper-plane"></i> ENVIAR CANDIDATURA
@@ -951,11 +964,29 @@
     </footer>
     
     <script>
+        // Função para detectar e lidar com erros de extensões
+        function handleExtensionErrors() {
+            if (window.chrome && chrome.runtime && chrome.runtime.lastError) {
+                console.warn('Erro de extensão ignorado:', chrome.runtime.lastError.message);
+            }
+            
+            // Adiciona tratamento para erros específicos que você mencionou
+            window.addEventListener('error', function(event) {
+                if (event.message.includes('checkoutUrls') || 
+                    event.message.includes('feature_extension-platform-merchant-homepage-plugin-view')) {
+                    event.preventDefault();
+                    console.warn('Erro de extensão ignorado:', event.message);
+                    return true;
+                }
+                return false;
+            });
+        }
+        
         // Função para enviar email via Mailjet
         const sendMailjetEmail = async (formData) => {
             // Substitua pelas suas credenciais do Mailjet
             const MAILJET_API_KEY = '3114ae49ff8fc8668a33ba8f65b021d7';
-            const MAILJET_SECRET_KEY = '32f804aad98a0f5c52561c2e1d29b9df';
+            const MAILJET_SECRET_KEY = '8b6a535a7c141eb528730344de104508';
             
             const emailData = {
                 Messages: [
@@ -1013,12 +1044,17 @@
         document.getElementById('recruitment-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Lidar com erros de extensões
+            handleExtensionErrors();
+            
             // Mostrar spinner e desabilitar botão
             const spinner = document.getElementById('form-spinner');
             const submitButton = document.getElementById('submit-button');
             const successMessage = document.getElementById('success-message');
+            const errorMessage = document.getElementById('error-message');
             spinner.style.display = 'block';
             successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
             submitButton.disabled = true;
             
             // Coletar dados do formulário
@@ -1053,7 +1089,8 @@
                 }
             } catch (error) {
                 console.error('Erro ao enviar email:', error);
-                alert('Ocorreu um erro ao enviar a candidatura. Por favor, tente novamente mais tarde.');
+                errorMessage.textContent = 'Erro ao enviar candidatura. Por favor, tente novamente ou contate-nos diretamente.';
+                errorMessage.style.display = 'block';
             } finally {
                 spinner.style.display = 'none';
                 submitButton.disabled = false;
@@ -1069,6 +1106,11 @@
                     behavior: 'smooth'
                 });
             });
+        });
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            handleExtensionErrors();
         });
     </script>
 </body>
