@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; connect-src 'self' https://api.mailjet.com; img-src 'self' data: https://images.unsplash.com https://randomuser.me; font-src 'self' https://cdnjs.cloudflare.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; connect-src 'self' https://api.mailjet.com; img-src 'self' data: https://images.unsplash.com https://randomuser.me; font-src 'self' https://cdnjs.cloudflare.com;">
     <title>Recrutamento EMS | FiveM</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -970,7 +970,7 @@
                 console.warn('Erro de extensão ignorado:', chrome.runtime.lastError.message);
             }
             
-            // Adiciona tratamento para erros específicos que você mencionou
+            // Adiciona tratamento para erros específicos
             window.addEventListener('error', function(event) {
                 if (event.message.includes('checkoutUrls') || 
                     event.message.includes('feature_extension-platform-merchant-homepage-plugin-view')) {
@@ -988,6 +988,7 @@
             const MAILJET_API_KEY = '3114ae49ff8fc8668a33ba8f65b021d7';
             const MAILJET_SECRET_KEY = '8b6a535a7c141eb528730344de104508';
             
+            // Corrigido: string de HTMLPart sem caracteres problemáticos
             const emailData = {
                 Messages: [
                     {
@@ -998,21 +999,19 @@
                         To: [
                             {
                                 Email: "crystal.roleplay.25@gmail.com
-", // Email de destino
+",
                                 Name: "Recrutamento SME"
                             }
                         ],
-                        Subject: `Nova Candidatura SME: ${formData.fullname}`,
-                        HTMLPart: `
-                            <h3>Nova Candidatura para o SME</h3>
-                            <p><strong>Nome:</strong> ${formData.fullname}</p>
-                            <p><strong>Idade:</strong> ${formData.age}</p>
-                            <p><strong>Discord:</strong> ${formData.discord}</p>
-                            <p><strong>ID da Personagem:</strong> ${formData.id}</p>
-                            <p><strong>Experiência:</strong> ${formData.experience}</p>
-                            <p><strong>Motivação:</strong> ${formData.why}</p>
-                            <p><strong>Disponibilidade:</strong> ${formData.availability}</p>
-                        `
+                        Subject: "Nova Candidatura SME: " + formData.fullname,
+                        HTMLPart: "<h3>Nova Candidatura para o SME</h3>" +
+                                  "<p><strong>Nome:</strong> " + formData.fullname + "</p>" +
+                                  "<p><strong>Idade:</strong> " + formData.age + "</p>" +
+                                  "<p><strong>Discord:</strong> " + formData.discord + "</p>" +
+                                  "<p><strong>ID da Personagem:</strong> " + formData.id + "</p>" +
+                                  "<p><strong>Experiência:</strong> " + formData.experience + "</p>" +
+                                  "<p><strong>Motivação:</strong> " + formData.why + "</p>" +
+                                  "<p><strong>Disponibilidade:</strong> " + formData.availability + "</p>"
                     }
                 ]
             };
@@ -1022,7 +1021,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Basic ' + btoa(`${MAILJET_API_KEY}:${MAILJET_SECRET_KEY}`)
+                        'Authorization': 'Basic ' + btoa(MAILJET_API_KEY + ':' + MAILJET_SECRET_KEY)
                     },
                     body: JSON.stringify(emailData)
                 });
